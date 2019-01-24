@@ -10,9 +10,7 @@ Parameters:
     Default: "EKSQuickStart"
   KubeClusterName:
     Type: String
-  NodeGroupIAMRole:
-    Type: String
-  LicenseKey:
+  NewRelicLicenseKey:
     Type: String
     NoEcho: true
 Resources:
