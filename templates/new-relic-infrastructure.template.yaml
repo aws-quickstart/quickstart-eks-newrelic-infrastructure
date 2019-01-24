@@ -16,7 +16,6 @@ Parameters:
     Type: String
     NoEcho: true
 Resources:
-  ## New Relic resources go here
   KubeStateMetrics:
     Type: "Custom::Helm"
     Version: '1.0'
@@ -25,3 +24,18 @@ Resources:
       KubeConfigPath: !Ref KubeConfigPath
       KubeConfigKmsContext: !Ref KubeConfigKmsContext
       Chart: stable/kube-state-metrics
+  NewRelic:
+    DependsOn: KubeStateMetrics
+    Type: "Custom::Helm"
+    Version: '1.0'
+    Properties:
+      ServiceToken: !Ref HelmLambdaArn
+      KubeConfigPath: !Ref KubeConfigPath
+      KubeConfigKmsContext: !Ref KubeConfigKmsContext
+      Chart: stable/newrelic-infrastructure 
+      # Custom values can optionally be specified
+      Values:
+        LicenseKey: !Ref NewRelicLicenseKey
+        cluster: !Ref KubeClusterName
+        apiserver.healthcheck.enabled: true
+        imagePullPolicy: Always
