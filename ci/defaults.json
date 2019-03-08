@@ -14,5 +14,9 @@
     {
         "ParameterKey": "QSS3BucketName",
         "ParameterValue": "$[taskcat_autobucket]"
+    },
+    {
+        "ParameterKey": "NewRelicLicenseKey",
+        "ParameterValue": "OVERRIDE"
     }
 ]

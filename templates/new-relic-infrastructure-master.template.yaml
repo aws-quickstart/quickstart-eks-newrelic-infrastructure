@@ -309,7 +309,6 @@ Resources:
         KubeConfigKmsContext: "EKSQuickStart"
         KubeClusterName: !GetAtt EKSStack.Outputs.EKSClusterName
         NewRelicLicenseKey: !Ref NewRelicLicenseKey
-      
 Outputs:
   KubeConfigPath:
     Value: !GetAtt EKSStack.Outputs.KubeConfigPath
