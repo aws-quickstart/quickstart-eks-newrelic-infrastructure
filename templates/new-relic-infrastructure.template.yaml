@@ -1,6 +1,8 @@
 AWSTemplateFormatVersion: "2010-09-09"
 Description: Deploys New Relic Infrastructure into an existing Kubernetes Cluster (qs-1p7tp185f)
 Parameters:
+  KubeManifestLambdaArn:
+    Type: String
   HelmLambdaArn:
     Type: String
   KubeConfigPath:
@@ -14,26 +16,284 @@ Parameters:
     Type: String
     NoEcho: true
 Resources:
-  KubeStateMetrics:
-    Type: "Custom::Helm"
+  KubeStateMetricsClusterRole:
+    Type: "Custom::KubeManifest"
     Version: '1.0'
     Properties:
-      ServiceToken: !Ref HelmLambdaArn
+      # The lambda function that executes the manifest against the cluster. This is created in one of the parent stacks
+      ServiceToken: !Ref KubeManifestLambdaArn
+      # S3 path to the encrypted config file eg. s3://my-bucket/kube/config.encrypted
       KubeConfigPath: !Ref KubeConfigPath
+      # context for KMS to use when decrypting the file
       KubeConfigKmsContext: !Ref KubeConfigKmsContext
-      Chart: stable/kube-state-metrics
+      # Kubernetes manifest
+      Manifest:
+        apiVersion: rbac.authorization.k8s.io/v1
+         # kubernetes versions before 1.8.0 should use rbac.authorization.k8s.io/v1beta1
+        kind: ClusterRole
+        metadata:
+          name: kube-state-metrics
+        rules:
+        - apiGroups: [""]
+          resources:
+          - configmaps
+          - secrets
+          - nodes
+          - pods
+          - services
+          - resourcequotas
+          - replicationcontrollers
+          - limitranges
+          - persistentvolumeclaims
+          - persistentvolumes
+          - namespaces
+          - endpoints
+          verbs: ["list", "watch"]
+        - apiGroups: ["extensions"]
+          resources:
+          - daemonsets
+          - deployments
+          - replicasets
+          - ingresses
+          verbs: ["list", "watch"]
+        - apiGroups: ["apps"]
+          resources:
+          - daemonsets
+          - deployments
+          - replicasets
+          - statefulsets
+          verbs: ["list", "watch"]
+        - apiGroups: ["batch"]
+          resources:
+          - cronjobs
+          - jobs
+          verbs: ["list", "watch"]
+        - apiGroups: ["autoscaling"]
+          resources:
+          - horizontalpodautoscalers
+          verbs: ["list", "watch"]
+        - apiGroups: ["policy"]
+          resources:
+          - poddisruptionbudgets
+          verbs: ["list", "watch"]
+  KubeStateMetricsClusterRoleBinding:
+    Type: "Custom::KubeManifest"
+    Version: '1.0'
+    Properties:
+      # The lambda function that executes the manifest against the cluster. This is created in one of the parent stacks
+      ServiceToken: !Ref KubeManifestLambdaArn
+      # S3 path to the encrypted config file eg. s3://my-bucket/kube/config.encrypted
+      KubeConfigPath: !Ref KubeConfigPath
+      # context for KMS to use when decrypting the file
+      KubeConfigKmsContext: !Ref KubeConfigKmsContext
+      # Kubernetes manifest
+      Manifest:
+        apiVersion: rbac.authorization.k8s.io/v1
+        # kubernetes versions before 1.8.0 should use rbac.authorization.k8s.io/v1beta1
+        kind: ClusterRoleBinding
+        metadata:
+          name: kube-state-metrics
+        roleRef:
+          apiGroup: rbac.authorization.k8s.io
+          kind: ClusterRole
+          name: kube-state-metrics
+        subjects:
+        - kind: ServiceAccount
+          name: kube-state-metrics
+          namespace: kube-system
+  KubeStateMetricsDeployment:
+    Type: "Custom::KubeManifest"
+    Version: '1.0'
+    Properties:
+      # The lambda function that executes the manifest against the cluster. This is created in one of the parent stacks
+      ServiceToken: !Ref KubeManifestLambdaArn
+      # S3 path to the encrypted config file eg. s3://my-bucket/kube/config.encrypted
+      KubeConfigPath: !Ref KubeConfigPath
+      # context for KMS to use when decrypting the file
+      KubeConfigKmsContext: !Ref KubeConfigKmsContext
+      # Kubernetes manifest
+      Manifest:
+        apiVersion: apps/v1
+        # Kubernetes version 1.8.x should use apps/v1beta2
+        # Kubernetes versions before 1.8.0 should use apps/v1beta1 or extensions/v1beta1
+        kind: Deployment
+        metadata:
+          name: kube-state-metrics
+          namespace: kube-system
+        spec:
+          selector:
+            matchLabels:
+              k8s-app: kube-state-metrics
+          replicas: 1
+          template:
+            metadata:
+              labels:
+                k8s-app: kube-state-metrics
+            spec:
+              serviceAccountName: kube-state-metrics
+              containers:
+              - name: kube-state-metrics
+                image: quay.io/coreos/kube-state-metrics:v1.4.0
+                ports:
+                - name: http-metrics
+                  containerPort: 8080
+                - name: telemetry
+                  containerPort: 8081
+                readinessProbe:
+                  httpGet:
+                    path: /healthz
+                    port: 8080
+                  initialDelaySeconds: 5
+                  timeoutSeconds: 5
+              - name: addon-resizer
+                image: k8s.gcr.io/addon-resizer:1.8.3
+                resources:
+                  limits:
+                    cpu: 150m
+                    memory: 50Mi
+                  requests:
+                    cpu: 150m
+                    memory: 50Mi
+                env:
+                  - name: MY_POD_NAME
+                    valueFrom:
+                      fieldRef:
+                        fieldPath: metadata.name
+                  - name: MY_POD_NAMESPACE
+                    valueFrom:
+                      fieldRef:
+                        fieldPath: metadata.namespace
+                command:
+                  - /pod_nanny
+                  - --container=kube-state-metrics
+                  - --cpu=100m
+                  - --extra-cpu=1m
+                  - --memory=100Mi
+                  - --extra-memory=2Mi
+                  - --threshold=5
+                  - --deployment=kube-state-metrics
+  KubeStateMetricsRoleBinding:
+    Type: "Custom::KubeManifest"
+    Version: '1.0'
+    Properties:
+      # The lambda function that executes the manifest against the cluster. This is created in one of the parent stacks
+      ServiceToken: !Ref KubeManifestLambdaArn
+      # S3 path to the encrypted config file eg. s3://my-bucket/kube/config.encrypted
+      KubeConfigPath: !Ref KubeConfigPath
+      # context for KMS to use when decrypting the file
+      KubeConfigKmsContext: !Ref KubeConfigKmsContext
+      # Kubernetes manifest
+      Manifest:
+        apiVersion: rbac.authorization.k8s.io/v1
+        # kubernetes versions before 1.8.0 should use rbac.authorization.k8s.io/v1beta1
+        kind: RoleBinding
+        metadata:
+          name: kube-state-metrics
+          namespace: kube-system
+        roleRef:
+          apiGroup: rbac.authorization.k8s.io
+          kind: Role
+          name: kube-state-metrics-resizer
+        subjects:
+        - kind: ServiceAccount
+          name: kube-state-metrics
+          namespace: kube-system
+  KubeStateMetricsRole:
+    Type: "Custom::KubeManifest"
+    Version: '1.0'
+    Properties:
+      # The lambda function that executes the manifest against the cluster. This is created in one of the parent stacks
+      ServiceToken: !Ref KubeManifestLambdaArn
+      # S3 path to the encrypted config file eg. s3://my-bucket/kube/config.encrypted
+      KubeConfigPath: !Ref KubeConfigPath
+      # context for KMS to use when decrypting the file
+      KubeConfigKmsContext: !Ref KubeConfigKmsContext
+      # Kubernetes manifest
+      Manifest:
+        apiVersion: rbac.authorization.k8s.io/v1
+        # kubernetes versions before 1.8.0 should use rbac.authorization.k8s.io/v1beta1
+        kind: Role
+        metadata:
+          namespace: kube-system
+          name: kube-state-metrics-resizer
+        rules:
+        - apiGroups: [""]
+          resources:
+          - pods
+          verbs: ["get"]
+        - apiGroups: ["apps"]
+          resources:
+          - deployments
+          resourceNames: ["kube-state-metrics"]
+          verbs: ["get", "update"]
+        - apiGroups: ["extensions"]
+          resources:
+          - deployments
+          resourceNames: ["kube-state-metrics"]
+          verbs: ["get", "update"]
+  KubeStateMetricsServiceAccount:
+    Type: "Custom::KubeManifest"
+    Version: '1.0'
+    Properties:
+        # The lambda function that executes the manifest against the cluster. This is created in one of the parent stacks
+      ServiceToken: !Ref KubeManifestLambdaArn
+        # S3 path to the encrypted config file eg. s3://my-bucket/kube/config.encrypted
+      KubeConfigPath: !Ref KubeConfigPath
+        # context for KMS to use when decrypting the file
+      KubeConfigKmsContext: !Ref KubeConfigKmsContext
+        # Kubernetes manifest
+      Manifest:
+        apiVersion: v1
+        kind: ServiceAccount
+        metadata:
+          name: kube-state-metrics
+          namespace: kube-system
+  KubeStateMetricsService:
+    Type: "Custom::KubeManifest"
+    Version: '1.0'
+    Properties:
+      # The lambda function that executes the manifest against the cluster. This is created in one of the parent stacks
+      ServiceToken: !Ref KubeManifestLambdaArn
+      # S3 path to the encrypted config file eg. s3://my-bucket/kube/config.encrypted
+      KubeConfigPath: !Ref KubeConfigPath
+      # context for KMS to use when decrypting the file
+      KubeConfigKmsContext: !Ref KubeConfigKmsContext
+      # Kubernetes manifest
+      Manifest:
+        apiVersion: v1
+        kind: Service
+        metadata:
+          name: kube-state-metrics
+          namespace: kube-system
+          labels:
+            k8s-app: kube-state-metrics
+          annotations:
+            prometheus.io/scrape: 'true'
+        spec:
+          ports:
+          - name: http-metrics
+            port: 8080
+            targetPort: http-metrics
+            protocol: TCP
+          - name: telemetry
+            port: 8081
+            targetPort: telemetry
+            protocol: TCP
+          selector:
+            k8s-app: kube-state-metrics
   NewRelic:
-    DependsOn: KubeStateMetrics
     Type: "Custom::Helm"
     Version: '1.0'
     Properties:
       ServiceToken: !Ref HelmLambdaArn
       KubeConfigPath: !Ref KubeConfigPath
       KubeConfigKmsContext: !Ref KubeConfigKmsContext
-      Chart: stable/newrelic-infrastructure 
+      Namespace: default
+      Chart: stable/newrelic-infrastructure
+      Version: '0.8.0'
       # Custom values can optionally be specified
       Values:
-        LicenseKey: !Ref NewRelicLicenseKey
+        licenseKey: !Ref NewRelicLicenseKey
         cluster: !Ref KubeClusterName
         apiserver.healthcheck.enabled: true
         imagePullPolicy: Always
