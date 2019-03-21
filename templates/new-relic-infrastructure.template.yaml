@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: "2010-09-09"
-Description: Deploys New Relic Infrastructure into an existing Kubernetes Cluster (qs-1p7tp185f)
+Description: Deploys New Relic Infrastructure into an existing Kubernetes Cluster
 Parameters:
   KubeManifestLambdaArn:
     Type: String

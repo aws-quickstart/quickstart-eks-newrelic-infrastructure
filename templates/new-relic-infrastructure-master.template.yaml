@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: "2010-09-09"
-Description: Deploys New Relic Infrastructure into a new EKS cluster in a new VPC (qs-1p7tp1885)
+Description: Deploys New Relic Infrastructure into a new EKS cluster in a new VPC
 Metadata:
   AWS::CloudFormation::Interface:
     ParameterGroups:
