@@ -22,3 +22,5 @@ tests:
   quickstart-new-relic-infrastructure-defaults:
     parameter_input: defaults.json
     template_file: new-relic-infrastructure-master.template.yaml
+    regions:
+    - us-west-2

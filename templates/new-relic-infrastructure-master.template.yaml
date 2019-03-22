@@ -304,7 +304,6 @@ Resources:
       TemplateURL: !Sub 'https://${QSS3BucketName}.s3.amazonaws.com/${QSS3KeyPrefix}templates/new-relic-infrastructure.template.yaml'
       Parameters:
         KubeManifestLambdaArn: !GetAtt EKSStack.Outputs.KubeManifestLambdaArn
-        HelmLambdaArn: !GetAtt EKSStack.Outputs.HelmLambdaArn
         KubeConfigPath: !GetAtt EKSStack.Outputs.KubeConfigPath
         KubeConfigKmsContext: "EKSQuickStart"
         KubeClusterName: !GetAtt EKSStack.Outputs.EKSClusterName
