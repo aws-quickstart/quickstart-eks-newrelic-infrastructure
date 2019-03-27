@@ -1,1 +1,1 @@
-# quickstart-new-relic-infrastructure
+# quickstart-eks-newrelic-infrastructure
