@@ -279,13 +279,13 @@ Resources:
   EKSStack:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: !Sub 'https://${QSS3BucketName}.s3.amazonaws.com/${QSS3KeyPrefix}submodules/quickstart-aws-eks/templates/aws-eks.template.yaml'
+      TemplateURL: !Sub 'https://${QSS3BucketName}.s3.amazonaws.com/${QSS3KeyPrefix}submodules/quickstart-amazon-eks/templates/amazon-eks.template.yaml'
       Parameters:
         PublicSubnet1ID: !GetAtt VPCStack.Outputs.PublicSubnet1ID
         PublicSubnet2ID: !GetAtt VPCStack.Outputs.PublicSubnet2ID
         KeyPairName: !Ref KeyPairName
         QSS3BucketName: !Ref QSS3BucketName
-        QSS3KeyPrefix: !Sub "${QSS3KeyPrefix}submodules/quickstart-aws-eks/"
+        QSS3KeyPrefix: !Sub "${QSS3KeyPrefix}submodules/quickstart-amazon-eks/"
         PrivateSubnet1ID: !GetAtt VPCStack.Outputs.PrivateSubnet1AID
         PrivateSubnet2ID: !GetAtt VPCStack.Outputs.PrivateSubnet2AID
         PrivateSubnet3ID: !GetAtt VPCStack.Outputs.PrivateSubnet3AID
