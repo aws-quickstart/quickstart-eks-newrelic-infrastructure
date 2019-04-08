@@ -4,25 +4,39 @@ Metadata:
   AWS::CloudFormation::Interface:
     ParameterGroups:
     - Label:
-        default: Network Configuration
+        default: New Relic configuration
       Parameters:
-      - RemoteAccessCIDR
+        - NewRelicLicenseKey
     - Label:
-        default: Amazon EC2 Configuration
+        default: Network configuration
+      Parameters:
+        - VPCID
+        - PrivateSubnet1ID
+        - PrivateSubnet2ID
+        - PrivateSubnet3ID
+        - PublicSubnet1ID
+        - PublicSubnet2ID
+        - PublicSubnet3ID
+        - RemoteAccessCIDR
+    - Label:
+        default: Amazon EC2 configuration
       Parameters:
       - KeyPairName
     - Label:
-        default: EKS Configuration
+        default: EKS configuration
       Parameters:
       - NodeInstanceType
       - NumberOfNodes
       - NodeGroupName
       - NodeVolumeSize
+      - KubernetesVersion
+      - AdditionalEKSAdminArns
     - Label:
-        default: AWS Quick Start Configuration
+        default: AWS Quick Start configuration
       Parameters:
       - QSS3BucketName
       - QSS3KeyPrefix
+      - LambdaZipsBucketName
     ParameterLabels:
       KeyPairName:
         default: SSH Key Name
@@ -40,6 +54,8 @@ Metadata:
         default: Node Group Name
       NodeVolumeSize:
         default: Node Volume Size
+      AdditionalEKSAdminArns:
+        default: Additional EKS admin ARN's
 Parameters:
   KeyPairName:
     Description: The name of an existing public/private key pair, which allows you
@@ -156,45 +172,55 @@ Parameters:
     - z1d.3xlarge
     - z1d.6xlarge
     - z1d.12xlarge
-    ConstraintDescription: Must be a valid EC2 instance type
-    Description: Type of EC2 instance for the Node instances
+    ConstraintDescription: Must be a valid EC2 instance type.
+    Description: The type of EC2 instance for the node instances.
     Type: String
   NumberOfNodes:
     Default: 3
-    Description: Number of EKS node instances
+    Description: The number of Amazon EKS node instances. The default is one for each of the three Availability Zones.
     Type: Number
   NodeGroupName:
     Default: Default
-    Description: Name for EKS node group
+    Description: The name for EKS node group.
     Type: String
   NodeVolumeSize:
     Default: 20
-    Description: Size for node volumes
+    Description: The size for the node's root EBS volumes.
     Type: String
   LambdaZipsBucketName:
-    Description: 'OPTIONAL: Bucket Name where the lambda zip files should be placed,
-        if left blank a bucket will be created.'
+    Description: '[OPTIONAL] The name of the S3 bucket where the Lambda .zip files should be placed. If you leave this parameter blank, an S3 bucket will be created.'
     Type: String
     Default: ''
   VPCID:
     Type: "AWS::EC2::VPC::Id"
+    Description: The ID of your existing VPC (e.g., vpc-0343606e)
   PublicSubnet1ID:
     Type: "AWS::EC2::Subnet::Id"
+    Description: The ID of the public subnet in Availability Zone 1 in your existing VPC (e.g., subnet-a0246dcd)
   PublicSubnet2ID:
     Type: "AWS::EC2::Subnet::Id"
+    Description: The ID of the public subnet in Availability Zone 2 in your existing VPC (e.g., subnet-b1236eea)
+  PublicSubnet3ID:
+    Type: "AWS::EC2::Subnet::Id"
+    Description: The ID of the public subnet in Availability Zone 3 in your existing VPC (e.g., subnet-c3456aba)
   PrivateSubnet1ID:
     Type: "AWS::EC2::Subnet::Id"
+    Description: The ID of the private subnet in Availability Zone 1 in your existing VPC (e.g., subnet-fe9a8b32)
   PrivateSubnet2ID:
     Type: "AWS::EC2::Subnet::Id"
+    Description: The ID of the private subnet in Availability Zone 2 in your existing VPC (e.g., subnet-be8b01ea)
   PrivateSubnet3ID:
     Type: "AWS::EC2::Subnet::Id"
+    Description: The ID of the private subnet in Availability Zone 3 in your existing VPC (e.g., subnet-abd39039)
   KubernetesVersion:
     Type: String
-    AllowedValues: [ "1.11", "1.10" ]
-    Default: "1.11"
+    AllowedValues: [ "1.12", "1.11", "1.10" ]
+    Default: "1.12"
+    Description: The Kubernetes control plane version.
   NewRelicLicenseKey:
     Type: String
     NoEcho: true
+    Description: The New Relic Infrastructure license key to use.
 Resources:
   EKSStack:
     Type: AWS::CloudFormation::Stack
