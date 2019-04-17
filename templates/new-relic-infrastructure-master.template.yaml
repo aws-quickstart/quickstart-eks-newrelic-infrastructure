@@ -2,6 +2,14 @@ AWSTemplateFormatVersion: "2010-09-09"
 Description: Deploys New Relic Infrastructure into a new EKS cluster in a new VPC
 Metadata:
   AWS::CloudFormation::Interface:
+    LintSpellExclude:
+      - New
+      - Relic
+      - Infrastructure
+      - Lambda
+      - dcd
+      - vpc
+      - kubernetes
     ParameterGroups:
     - Label:
         default: New Relic configuration
@@ -52,33 +60,33 @@ Metadata:
       KeyPairName:
         default: SSH key name
       PrivateSubnet1CIDR:
-        default: Private Subnet 1 CIDR
+        default: Private subnet 1 CIDR
       PrivateSubnet2CIDR:
-        default: Private Subnet 2 CIDR
+        default: Private subnet 2 CIDR
       PrivateSubnet3CIDR:
-        default: Private Subnet 3 CIDR
+        default: Private subnet 3 CIDR
       PublicSubnet1CIDR:
-        default: Public Subnet 1 CIDR
+        default: Public subnet 1 CIDR
       PublicSubnet2CIDR:
-        default: Public Subnet 2 CIDR
+        default: Public subnet 2 CIDR
       PublicSubnet3CIDR:
-        default: Public Subnet 3 CIDR
+        default: Public subnet 3 CIDR
       QSS3BucketName:
-        default: Quick Start S3 Bucket Name
+        default: Quick Start S3 bucket name
       QSS3KeyPrefix:
-        default: Quick Start S3 Key Prefix
+        default: Quick Start S3 key prefix
       RemoteAccessCIDR:
-        default: Allowed External Access CIDR
+        default: Allowed external access CIDR
       VPCCIDR:
         default: VPC CIDR
       NodeInstanceType:
-        default: Nodes Instance Type
+        default: Nodes instance type
       NumberOfNodes:
-        default: Number of Nodes
+        default: Number of nodes
       NodeGroupName:
-        default: Node Group Name
+        default: Node group name
       NodeVolumeSize:
-        default: Node Volume Size
+        default: Node volume size
 Parameters:
   AvailabilityZones:
     Description: List of Availability Zones to use for the subnets in the VPC. Three
@@ -262,7 +270,7 @@ Parameters:
     Description: The size for the node's root EBS volumes.
     Type: String
   LambdaZipsBucketName:
-    Description: '[OPTIONAL] The name of the S3 bucket where the Lambda .zip files should be placed. If you leave this parameter blank, an S3 bucket will be created.'
+    Description: '[OPTIONAL] The name of the S3 bucket where the Lambda zip files should be placed. If you leave this parameter blank, an S3 bucket will be created.'
     Type: String
     Default: ''
   KubernetesVersion:

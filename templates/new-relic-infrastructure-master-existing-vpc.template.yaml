@@ -1,6 +1,14 @@
 AWSTemplateFormatVersion: "2010-09-09"
 Description: Deploys New Relic Infrastructure into a new EKS cluster in an existing VPC (qs-1p7tp188h)
 Metadata:
+  LintSpellExclude:
+    - New
+    - Relic
+    - Infrastructure
+    - Lambda
+    - dcd
+    - vpc
+    - kubernetes
   AWS::CloudFormation::Interface:
     ParameterGroups:
     - Label:
@@ -39,23 +47,43 @@ Metadata:
       - LambdaZipsBucketName
     ParameterLabels:
       KeyPairName:
-        default: SSH Key Name
+        default: SSH key name
       QSS3BucketName:
-        default: Quick Start S3 Bucket Name
+        default: Quick Start S3 bucket name
       QSS3KeyPrefix:
-        default: Quick Start S3 Key Prefix
+        default: Quick Start S3 key prefix
       RemoteAccessCIDR:
-        default: Allowed External Access CIDR
+        default: Allowed external access CIDR
       NodeInstanceType:
-        default: Nodes Instance Type
+        default: Nodes instance type
       NumberOfNodes:
-        default: Number of Nodes
+        default: Number of nodes
       NodeGroupName:
-        default: Node Group Name
+        default: Node group name
       NodeVolumeSize:
-        default: Node Volume Size
+        default: Node volume size
       AdditionalEKSAdminArns:
         default: Additional EKS admin ARN's
+      LambdaZipsBucketName:
+        default: Lambda zips bucket name
+      PublicSubnet1ID:
+        default: Public subnet 1 ID
+      PublicSubnet2ID:
+        default: Public subnet 2 ID
+      PublicSubnet3ID:
+        default: Public subnet 3 ID
+      PrivateSubnet1ID:
+        default: Private subnet 1 ID
+      PrivateSubnet2ID:
+        default: Private subnet 2 ID
+      PrivateSubnet3ID:
+        default: Private subnet 3 ID
+      VPCID:
+        default: VPC ID
+      KubernetesVersion:
+        default: Kubernetes version
+      NewRelicLicenseKey:
+        default: New Relic license ley
 Parameters:
   KeyPairName:
     Description: The name of an existing public/private key pair, which allows you
@@ -188,7 +216,7 @@ Parameters:
     Description: The size for the node's root EBS volumes.
     Type: String
   LambdaZipsBucketName:
-    Description: '[OPTIONAL] The name of the S3 bucket where the Lambda .zip files should be placed. If you leave this parameter blank, an S3 bucket will be created.'
+    Description: '[OPTIONAL] The name of the S3 bucket where the Lambda zip files should be placed. If you leave this parameter blank, an S3 bucket will be created.'
     Type: String
     Default: ''
   VPCID:
@@ -229,6 +257,7 @@ Resources:
       Parameters:
         PublicSubnet1ID: !Ref PublicSubnet1ID
         PublicSubnet2ID: !Ref PublicSubnet2ID
+        PublicSubnet3ID: !Ref PublicSubnet3ID
         KeyPairName: !Ref KeyPairName
         QSS3BucketName: !Ref QSS3BucketName
         QSS3KeyPrefix: !Sub "${QSS3KeyPrefix}submodules/quickstart-amazon-eks/"
