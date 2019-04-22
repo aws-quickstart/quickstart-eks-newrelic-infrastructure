@@ -83,7 +83,7 @@ Metadata:
       KubernetesVersion:
         default: Kubernetes version
       NewRelicLicenseKey:
-        default: New Relic license ley
+        default: New Relic license key
 Parameters:
   KeyPairName:
     Description: The name of an existing public/private key pair, which allows you
