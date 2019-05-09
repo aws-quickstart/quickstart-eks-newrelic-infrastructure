@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: "2010-09-09"
-Description: Deploys New Relic Infrastructure into a new EKS cluster in an existing VPC (qs-1p7tp188h)
+Description: Deploys New Relic Infrastructure into a new EKS cluster in an existing VPC (qs-1pipr93g8)
 Metadata:
   LintSpellExclude:
     - New
