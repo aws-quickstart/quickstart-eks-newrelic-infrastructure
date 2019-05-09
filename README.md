@@ -3,7 +3,7 @@
 
 This Quick Start deploys New Relic Infrastructure on the Amazon Web Services (AWS) Cloud in 20-30 minutes. This Quick Start is for those who want to use AWS and its products and services to launch Amazon Elastic Container Services for Kubernetes (Amazon EKS) and monitor the infrastructure by using New Relic Infrastructure.
 
-New Relic Infrastructure includes Kubernetes cluster explorer, which provides a multi-dimensional representation of a Kubernetes cluster that lets you zoom into your namespaces, deployments, nodes, pods, containers, and applications. This reference deployment uses the [Amazon EKS Architecture Quick Start](https://fwd.aws/zeWyb) as a foundation to provide a fully managed, highly available, and certified Kubernetes-conformant control plane.
+New Relic Infrastructure includes Kubernetes cluster explorer, which provides a multi-dimensional representation of a Kubernetes cluster that lets you zoom into your namespaces, deployments, nodes, pods, containers, and applications. This reference deployment uses the [Amazon EKS Architecture Quick Start](https://fwd.aws/zeWyb) as a foundation to provide a fully managed, highly available, and certified Kubernetes-conformant control plane for New Relic Infrastructure.
 
 This Quick Start uses AWS CloudFormation templates to deploy New Relic Infrastructure in a single AWS Region across two Availability Zones.
 
