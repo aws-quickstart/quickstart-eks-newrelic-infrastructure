@@ -1,13 +1,6 @@
 AWSTemplateFormatVersion: "2010-09-09"
 Description: Deploys New Relic Infrastructure into an existing Kubernetes Cluster (qs-1pipr93dp)
 Parameters:
-  KubeManifestLambdaArn:
-    Type: String
-  KubeConfigPath:
-    Type: String
-  KubeConfigKmsContext:
-    Type: String
-    Default: "EKSQuickStart"
   KubeClusterName:
     Type: String
   NewRelicLicenseKey:
@@ -16,15 +9,9 @@ Parameters:
 Resources:
   KubeStateMetricsClusterRole:
     Type: "Custom::KubeManifest"
-    Version: '1.0'
     Properties:
-      # The lambda function that executes the manifest against the cluster. This is created in one of the parent stacks
-      ServiceToken: !Ref KubeManifestLambdaArn
-      # S3 path to the encrypted config file eg. s3://my-bucket/kube/config.encrypted
-      KubeConfigPath: !Ref KubeConfigPath
-      # context for KMS to use when decrypting the file
-      KubeConfigKmsContext: !Ref KubeConfigKmsContext
-      # Kubernetes manifest
+      ServiceToken: !Sub "arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:EKS-QuickStart-KubeManifest-${KubeClusterName}"
+      ClusterName: !Ref KubeClusterName
       Manifest:
         apiVersion: rbac.authorization.k8s.io/v1
          # kubernetes versions before 1.8.0 should use rbac.authorization.k8s.io/v1beta1
@@ -76,15 +63,9 @@ Resources:
           verbs: ["list", "watch"]
   KubeStateMetricsClusterRoleBinding:
     Type: "Custom::KubeManifest"
-    Version: '1.0'
     Properties:
-      # The lambda function that executes the manifest against the cluster. This is created in one of the parent stacks
-      ServiceToken: !Ref KubeManifestLambdaArn
-      # S3 path to the encrypted config file eg. s3://my-bucket/kube/config.encrypted
-      KubeConfigPath: !Ref KubeConfigPath
-      # context for KMS to use when decrypting the file
-      KubeConfigKmsContext: !Ref KubeConfigKmsContext
-      # Kubernetes manifest
+      ServiceToken: !Sub "arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:EKS-QuickStart-KubeManifest-${KubeClusterName}"
+      ClusterName: !Ref KubeClusterName
       Manifest:
         apiVersion: rbac.authorization.k8s.io/v1
         # kubernetes versions before 1.8.0 should use rbac.authorization.k8s.io/v1beta1
@@ -101,15 +82,9 @@ Resources:
           namespace: kube-system
   KubeStateMetricsDeployment:
     Type: "Custom::KubeManifest"
-    Version: '1.0'
     Properties:
-      # The lambda function that executes the manifest against the cluster. This is created in one of the parent stacks
-      ServiceToken: !Ref KubeManifestLambdaArn
-      # S3 path to the encrypted config file eg. s3://my-bucket/kube/config.encrypted
-      KubeConfigPath: !Ref KubeConfigPath
-      # context for KMS to use when decrypting the file
-      KubeConfigKmsContext: !Ref KubeConfigKmsContext
-      # Kubernetes manifest
+      ServiceToken: !Sub "arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:EKS-QuickStart-KubeManifest-${KubeClusterName}"
+      ClusterName: !Ref KubeClusterName
       Manifest:
         apiVersion: apps/v1
         # Kubernetes version 1.8.x should use apps/v1beta2
@@ -172,15 +147,9 @@ Resources:
                   - --deployment=kube-state-metrics
   KubeStateMetricsRoleBinding:
     Type: "Custom::KubeManifest"
-    Version: '1.0'
     Properties:
-      # The lambda function that executes the manifest against the cluster. This is created in one of the parent stacks
-      ServiceToken: !Ref KubeManifestLambdaArn
-      # S3 path to the encrypted config file eg. s3://my-bucket/kube/config.encrypted
-      KubeConfigPath: !Ref KubeConfigPath
-      # context for KMS to use when decrypting the file
-      KubeConfigKmsContext: !Ref KubeConfigKmsContext
-      # Kubernetes manifest
+      ServiceToken: !Sub "arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:EKS-QuickStart-KubeManifest-${KubeClusterName}"
+      ClusterName: !Ref KubeClusterName
       Manifest:
         apiVersion: rbac.authorization.k8s.io/v1
         # kubernetes versions before 1.8.0 should use rbac.authorization.k8s.io/v1beta1
@@ -198,15 +167,9 @@ Resources:
           namespace: kube-system
   KubeStateMetricsRole:
     Type: "Custom::KubeManifest"
-    Version: '1.0'
     Properties:
-      # The lambda function that executes the manifest against the cluster. This is created in one of the parent stacks
-      ServiceToken: !Ref KubeManifestLambdaArn
-      # S3 path to the encrypted config file eg. s3://my-bucket/kube/config.encrypted
-      KubeConfigPath: !Ref KubeConfigPath
-      # context for KMS to use when decrypting the file
-      KubeConfigKmsContext: !Ref KubeConfigKmsContext
-      # Kubernetes manifest
+      ServiceToken: !Sub "arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:EKS-QuickStart-KubeManifest-${KubeClusterName}"
+      ClusterName: !Ref KubeClusterName
       Manifest:
         apiVersion: rbac.authorization.k8s.io/v1
         # kubernetes versions before 1.8.0 should use rbac.authorization.k8s.io/v1beta1
@@ -231,15 +194,9 @@ Resources:
           verbs: ["get", "update"]
   KubeStateMetricsServiceAccount:
     Type: "Custom::KubeManifest"
-    Version: '1.0'
     Properties:
-        # The lambda function that executes the manifest against the cluster. This is created in one of the parent stacks
-      ServiceToken: !Ref KubeManifestLambdaArn
-        # S3 path to the encrypted config file eg. s3://my-bucket/kube/config.encrypted
-      KubeConfigPath: !Ref KubeConfigPath
-        # context for KMS to use when decrypting the file
-      KubeConfigKmsContext: !Ref KubeConfigKmsContext
-        # Kubernetes manifest
+      ServiceToken: !Sub "arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:EKS-QuickStart-KubeManifest-${KubeClusterName}"
+      ClusterName: !Ref KubeClusterName
       Manifest:
         apiVersion: v1
         kind: ServiceAccount
@@ -248,15 +205,9 @@ Resources:
           namespace: kube-system
   KubeStateMetricsService:
     Type: "Custom::KubeManifest"
-    Version: '1.0'
     Properties:
-      # The lambda function that executes the manifest against the cluster. This is created in one of the parent stacks
-      ServiceToken: !Ref KubeManifestLambdaArn
-      # S3 path to the encrypted config file eg. s3://my-bucket/kube/config.encrypted
-      KubeConfigPath: !Ref KubeConfigPath
-      # context for KMS to use when decrypting the file
-      KubeConfigKmsContext: !Ref KubeConfigKmsContext
-      # Kubernetes manifest
+      ServiceToken: !Sub "arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:EKS-QuickStart-KubeManifest-${KubeClusterName}"
+      ClusterName: !Ref KubeClusterName
       Manifest:
         apiVersion: v1
         kind: Service
@@ -282,15 +233,9 @@ Resources:
 # New Relic Kubernetes integration. Documentation https://docs.newrelic.com/docs/integrations/kubernetes-integration/installation/kubernetes-installation-configuration
   NewRelicServceAccount:
     Type: "Custom::KubeManifest"
-    Version: '1.0'
     Properties:
-      # The lambda function that executes the manifest against the cluster. This is created in one of the parent stacks
-      ServiceToken: !Ref KubeManifestLambdaArn
-      # S3 path to the encrypted config file eg. s3://my-bucket/kube/config.encrypted
-      KubeConfigPath: !Ref KubeConfigPath
-      # context for KMS to use when decrypting the file
-      KubeConfigKmsContext: !Ref KubeConfigKmsContext
-      # Kubernetes manifest
+      ServiceToken: !Sub "arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:EKS-QuickStart-KubeManifest-${KubeClusterName}"
+      ClusterName: !Ref KubeClusterName
       Manifest:
         apiVersion: v1
         kind: ServiceAccount
@@ -300,15 +245,9 @@ Resources:
         automountServiceAccountToken: true
   NewRelicClusterRole:
     Type: "Custom::KubeManifest"
-    Version: '1.0'
     Properties:
-      # The lambda function that executes the manifest against the cluster. This is created in one of the parent stacks
-      ServiceToken: !Ref KubeManifestLambdaArn
-      # S3 path to the encrypted config file eg. s3://my-bucket/kube/config.encrypted
-      KubeConfigPath: !Ref KubeConfigPath
-      # context for KMS to use when decrypting the file
-      KubeConfigKmsContext: !Ref KubeConfigKmsContext
-      # Kubernetes manifest
+      ServiceToken: !Sub "arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:EKS-QuickStart-KubeManifest-${KubeClusterName}"
+      ClusterName: !Ref KubeClusterName
       Manifest:
         apiVersion: rbac.authorization.k8s.io/v1beta1
         kind: ClusterRole
@@ -326,15 +265,9 @@ Resources:
           verbs: ["get", "list"]
   NewRelicClusterBinding:
     Type: "Custom::KubeManifest"
-    Version: '1.0'
     Properties:
-      # The lambda function that executes the manifest against the cluster. This is created in one of the parent stacks
-      ServiceToken: !Ref KubeManifestLambdaArn
-      # S3 path to the encrypted config file eg. s3://my-bucket/kube/config.encrypted
-      KubeConfigPath: !Ref KubeConfigPath
-      # context for KMS to use when decrypting the file
-      KubeConfigKmsContext: !Ref KubeConfigKmsContext
-      # Kubernetes manifest
+      ServiceToken: !Sub "arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:EKS-QuickStart-KubeManifest-${KubeClusterName}"
+      ClusterName: !Ref KubeClusterName
       Manifest:
         apiVersion: rbac.authorization.k8s.io/v1beta1
         kind: ClusterRoleBinding
@@ -350,15 +283,9 @@ Resources:
           namespace: default
   NewRelicDaemonSet:
     Type: "Custom::KubeManifest"
-    Version: '1.0'
     Properties:
-      # The lambda function that executes the manifest against the cluster. This is created in one of the parent stacks
-      ServiceToken: !Ref KubeManifestLambdaArn
-      # S3 path to the encrypted config file eg. s3://my-bucket/kube/config.encrypted
-      KubeConfigPath: !Ref KubeConfigPath
-      # context for KMS to use when decrypting the file
-      KubeConfigKmsContext: !Ref KubeConfigKmsContext
-      # Kubernetes manifest
+      ServiceToken: !Sub "arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:EKS-QuickStart-KubeManifest-${KubeClusterName}"
+      ClusterName: !Ref KubeClusterName
       Manifest: !Sub |
         apiVersion: extensions/v1beta1
         kind: DaemonSet
